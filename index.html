@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XG Sammim - TikTok Downloader</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;600;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #00f2fe;
+            --accent: #00ffa3;
+            --bg: #020617; 
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            margin: 0; padding: 20px;
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg);
+            background-image: 
+                radial-gradient(circle at 50% 50%, rgba(30, 64, 175, 0.3) 0%, transparent 70%),
+                radial-gradient(circle at 0% 0%, rgba(0, 242, 254, 0.1) 0%, transparent 40%);
+            color: white; display: flex; align-items: center; justify-content: center; min-height: 100vh;
+        }
+
+        .container {
+            width: 100%; max-width: 400px;
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            padding: 35px 25px; border-radius: 35px;
+            border: 1px solid var(--border);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+
+        h1 { font-size: 28px; font-weight: 900; margin-bottom: 25px; background: linear-gradient(to right, #fff, var(--primary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+        .input-area { background: rgba(255, 255, 255, 0.07); border-radius: 18px; border: 1px solid var(--border); display: flex; align-items: center; padding: 5px 12px; margin-bottom: 15px; }
+        input { flex: 1; border: none; background: transparent; padding: 12px; color: white; font-size: 14px; outline: none; }
+        .paste-btn { background: #4f46e5; color: white; border: none; padding: 8px 14px; border-radius: 12px; font-weight: 700; font-size: 11px; cursor: pointer; }
+
+        .fetch-btn { width: 100%; padding: 15px; background: linear-gradient(135deg, var(--primary), var(--accent)); color: #020617; border: none; border-radius: 18px; font-weight: 900; font-size: 15px; cursor: pointer; transition: 0.2s; }
+
+        #info-box { 
+            display: none; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 18px; 
+            margin: 20px 0; border: 1px solid var(--primary); position: relative; text-align: left; 
+        }
+        #link-txt { font-size: 12px; color: var(--primary); word-break: break-all; padding-right: 35px; display: block; }
+        .close-btn { 
+            position: absolute; top: 12px; right: 12px; background: rgba(255,255,255,0.1); 
+            border: none; color: white; cursor: pointer; font-size: 16px; width: 26px; height: 26px; 
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+        }
+
+        .loader-container { display: none; margin-top: 20px; text-align: left; }
+        .loader-info { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 8px; color: var(--primary); }
+        .bar-bg { width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden; }
+        .bar-fill { width: 0%; height: 100%; background: var(--primary); transition: 0.1s; }
+
+        #result-area { display: none; margin-top: 10px; }
+        .video-card { background: rgba(255,255,255,0.03); padding: 15px; border-radius: 20px; border: 1px solid var(--border); display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+        #user-img { width: 50px; height: 50px; border-radius: 50%; border: 2px solid var(--primary); }
+        .user-info { text-align: left; }
+        .user-info h4 { margin: 0; font-size: 15px; }
+        .user-info p { margin: 2px 0 0; font-size: 11px; opacity: 0.5; }
+
+        .dl-group { display: flex; flex-direction: column; gap: 10px; }
+        .dl-btn { padding: 13px; border: none; border-radius: 15px; font-weight: 700; font-size: 13px; cursor: pointer; color: white; text-align: center; text-decoration: none; display: block; transition: 0.2s; }
+        .btn-s1 { background: #2563eb; }
+        .btn-browser { background: #0891b2; }
+        .btn-mp3 { background: #f43f5e; }
+
+        .footer { margin-top: 35px; }
+        .social-links { margin-top: 15px; display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; }
+        .social-links a { text-decoration: none; font-weight: 800; font-size: 13px; }
+        .tg { color: #0088cc; }
+        .fb { color: #1877f2; }
+        .app-dl { color: #00ffa3; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="input-section">
+        <h1>TikTok Downloader</h1>
+        <div class="input-area">
+            <input type="text" id="urlInput" placeholder="TikTok লিঙ্ক দিন...">
+            <button class="paste-btn" onclick="pasteUrl()">Paste</button>
+        </div>
+        <button class="fetch-btn" onclick="startFetch()">🚀 ডাউনলোড লিঙ্ক খুঁজুন</button>
+    </div>
+
+    <div id="info-box">
+        <span id="link-txt"></span>
+        <button class="close-btn" onclick="reset()">✕</button>
+    </div>
+
+    <div class="loader-container" id="loadingBox">
+        <div class="loader-info">
+            <span id="status">প্রসেসিং...</span>
+            <span id="percent">0%</span>
+        </div>
+        <div class="bar-bg"><div class="bar-fill" id="bar"></div></div>
+    </div>
+
+    <div id="result-area">
+        <div class="video-card">
+            <img id="user-img" src="" alt="">
+            <div class="user-info">
+                <h4 id="user-name"></h4>
+                <p id="video-title"></p>
+            </div>
+        </div>
+        <div class="dl-group" id="dl-buttons"></div>
+    </div>
+
+    <div class="footer">
+        <b>Created by GX Sammim</b>
+        <div class="social-links">
+            <a href="https://t.me/sammim14" target="_blank" class="tg">Telegram</a>
+            <a href="https://fb.com/share/1SD3SzGTyj/" target="_blank" class="fb">Facebook</a>
+            <a href="https://guui68.github.io/Downloading-apps/" target="_blank" class="app-dl">Apps Download</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentUrl = "";
+
+    function reset() { location.reload(); }
+
+    async function pasteUrl() {
+        try {
+            const t = await navigator.clipboard.readText();
+            document.getElementById("urlInput").value = t;
+        } catch(e) { alert("Paste failed!"); }
+    }
+
+    function updateLoader(txt, val) {
+        document.getElementById("loadingBox").style.display = "block";
+        document.getElementById("status").innerText = txt;
+        document.getElementById("percent").innerText = Math.round(val) + "%";
+        document.getElementById("bar").style.width = val + "%";
+    }
+
+    async function startFetch() {
+        currentUrl = document.getElementById("urlInput").value.trim();
+        if(!currentUrl.includes("tiktok.com")) return alert("সঠিক TikTok লিঙ্ক দিন!");
+
+        updateLoader("খুঁজছি...", 50);
+
+        try {
+            // আরও ফাস্ট ডাটা ফেচ করার জন্য hd=1 দিয়ে শুরু
+            const r = await fetch(`https://tikwm.com/api/?url=${encodeURIComponent(currentUrl)}&hd=1`);
+            const j = await r.json();
+            
+            if(j.data) {
+                showResult(j.data);
+            } else {
+                throw "error";
+            }
+        } catch(e) {
+            // ব্যাকআপ ফাস্ট কল
+            try {
+                const r2 = await fetch(`https://www.tikwm.com/api/?url=${encodeURIComponent(currentUrl)}`);
+                const j2 = await r2.json();
+                if(j2.data) showResult(j2.data);
+                else alert("সার্ভার ব্যস্ত!");
+            } catch(err) { alert("Error!"); reset(); }
+        }
+    }
+
+    function showResult(data) {
+        updateLoader("সম্পন্ন!", 100);
+        setTimeout(() => {
+            document.getElementById("loadingBox").style.display = "none";
+            document.getElementById("input-section").style.display = "none";
+            document.getElementById("link-txt").innerText = "লিঙ্ক: " + currentUrl;
+            document.getElementById("info-box").style.display = "block";
+            
+            document.getElementById("user-img").src = data.author.avatar;
+            document.getElementById("user-name").innerText = "@" + data.author.nickname;
+            document.getElementById("video-title").innerText = data.title || "TikTok Video";
+            
+            const vLink = data.hd || data.play;
+            const btnBox = document.getElementById("dl-buttons");
+            
+            // ফাইলের নাম এখানে সেট করা হয়েছে
+            btnBox.innerHTML = `
+                <button class="dl-btn btn-s1" onclick="downloadFile('${vLink}', 'GX Sammim download.mp4')">🚀 ওয়াটারমার্ক রিমুভ</button>
+                <a href="${vLink}" target="_blank" class="dl-btn btn-browser">🌐 ব্রাউজার ডাউনলোড</a>
+                <button class="dl-btn btn-mp3" onclick="downloadFile('${data.music}', 'GX Sammim download.mp3')">🎵 অডিও ডাউনলোড (MP3)</button>
+            `;
+            document.getElementById("result-area").style.display = "block";
+        }, 100);
+    }
+
+    async function downloadFile(url, name) {
+        document.getElementById("loadingBox").style.display = "block";
+        updateLoader("শুরু হচ্ছে...", 10);
+        
+        try {
+            const res = await fetch(url);
+            const reader = res.body.getReader();
+            const length = +res.headers.get('Content-Length');
+            let received = 0;
+            let chunks = [];
+
+            while(true) {
+                const {done, value} = await reader.read();
+                if (done) break;
+                chunks.push(value);
+                received += value.length;
+                if (length) updateLoader("ডাউনলোড...", (received / length) * 100);
+            }
+
+            const blob = new Blob(chunks);
+            const dUrl = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = dUrl; a.download = name; a.click();
+            updateLoader("সফল!", 100);
+            setTimeout(() => { document.getElementById("loadingBox").style.display = "none"; }, 1000);
+        } catch (e) { 
+            window.open(url, '_blank'); 
+            document.getElementById("loadingBox").style.display = "none";
+        }
+    }
+</script>
+</body>
+</html>
